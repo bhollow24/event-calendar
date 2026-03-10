@@ -249,7 +249,7 @@ function editEvent() {
     submitBtn.onclick = () => updateEvent();
 }
 
-function updateEvent() {
+async function updateEvent() {
     const index = events.findIndex(e => e.id === selectedEvent.id);
     if (index === -1) return;
     
@@ -278,16 +278,24 @@ function updateEvent() {
     
     events[index] = updatedEvent;
     
+    // Save to GitHub
+    const saved = await saveEventsToGitHub(events);
+    
     hideManualForm();
     renderCalendar();
-    alert('✓ Event updated successfully!');
+    
+    if (saved) {
+        alert('✓ Event updated and saved!');
+    } else {
+        alert('✓ Event updated locally (GitHub save failed - check console)');
+    }
     
     const submitBtn = document.querySelector('.manual-form .submit');
     submitBtn.textContent = 'Add Event';
     submitBtn.onclick = () => addManualEvent();
 }
 
-function deleteEvent() {
+async function deleteEvent() {
     if (!selectedEvent) return;
     
     if (confirm(`Are you sure you want to delete "${selectedEvent.name}"?`)) {
@@ -295,9 +303,18 @@ function deleteEvent() {
         if (index !== -1) {
             events.splice(index, 1);
         }
+        
+        // Save to GitHub
+        const saved = await saveEventsToGitHub(events);
+        
         closeModal();
         renderCalendar();
-        alert('✓ Event deleted successfully!');
+        
+        if (saved) {
+            alert('✓ Event deleted and saved!');
+        } else {
+            alert('✓ Event deleted locally (GitHub save failed - check console)');
+        }
     }
 }
 
@@ -335,7 +352,7 @@ async function scrapeEvent() {
     }, 1000);
 }
 
-function addManualEvent() {
+async function addManualEvent() {
     const name = document.getElementById('manualName').value;
     const startDate = document.getElementById('manualStartDate').value;
     const endDate = document.getElementById('manualEndDate').value;
@@ -387,15 +404,29 @@ function addManualEvent() {
     }
 
     events.push(newEvent);
+    
+    // Save to GitHub
+    const saved = await saveEventsToGitHub(events);
+    
     hideManualForm();
     renderCalendar();
     
     document.getElementById('eventUrl').value = '';
     
-    alert('✓ Event added successfully!');
+    if (saved) {
+        alert('✓ Event added and saved!');
+    } else {
+        alert('✓ Event added locally (GitHub save failed - check console)');
+    }
 }
 
+// Initial render with default data
 renderCalendar();
+
+// Initialize GitHub storage and reload events
+if (typeof initializeStorage === 'function') {
+    initializeStorage();
+}
 
 document.getElementById('eventModal').addEventListener('click', function(e) {
     if (e.target === this) {
