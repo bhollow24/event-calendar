@@ -234,9 +234,15 @@ function editEvent() {
     document.getElementById('manualEstimated').value = selectedEvent.estimated.toString();
     document.getElementById('manualAudience').value = selectedEvent.audience.join(', ');
     document.getElementById('manualUrl').value = selectedEvent.url;
+    document.getElementById('manualDigitalAssetRelevance').value = selectedEvent.digitalAssetRelevance || '';
     document.getElementById('manualNotes').value = selectedEvent.notes || '';
     
     showManualForm();
+    
+    // Scroll form into view
+    setTimeout(() => {
+        document.getElementById('manualForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
     
     const submitBtn = document.querySelector('.manual-form .submit');
     submitBtn.textContent = 'Update Event';
@@ -247,7 +253,8 @@ function updateEvent() {
     const index = events.findIndex(e => e.id === selectedEvent.id);
     if (index === -1) return;
     
-    events[index] = {
+    const digitalAssetRelevance = document.getElementById('manualDigitalAssetRelevance').value;
+    const updatedEvent = {
         ...selectedEvent,
         name: document.getElementById('manualName').value,
         startDate: document.getElementById('manualStartDate').value,
@@ -262,6 +269,14 @@ function updateEvent() {
         url: document.getElementById('manualUrl').value,
         notes: document.getElementById('manualNotes').value
     };
+    
+    if (digitalAssetRelevance) {
+        updatedEvent.digitalAssetRelevance = digitalAssetRelevance;
+    } else {
+        delete updatedEvent.digitalAssetRelevance;
+    }
+    
+    events[index] = updatedEvent;
     
     hideManualForm();
     renderCalendar();
@@ -332,6 +347,7 @@ function addManualEvent() {
     const estimated = document.getElementById('manualEstimated').value === 'true';
     const audience = document.getElementById('manualAudience').value.split(',').map(s => s.trim());
     const url = document.getElementById('manualUrl').value;
+    const digitalAssetRelevance = document.getElementById('manualDigitalAssetRelevance').value;
     const notes = document.getElementById('manualNotes').value;
 
     if (!name || !startDate || !endDate || !location || !attendance || !url) {
@@ -365,6 +381,10 @@ function addManualEvent() {
         url,
         notes
     };
+    
+    if (digitalAssetRelevance) {
+        newEvent.digitalAssetRelevance = digitalAssetRelevance;
+    }
 
     events.push(newEvent);
     hideManualForm();
