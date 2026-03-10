@@ -376,6 +376,22 @@ const events = [
     digitalAssetRelevance: "Yes"
   },
   {
+    id: 36,
+    name: "Digital Asset Summit London (Blockworks)",
+    startDate: "2026-10-20",
+    endDate: "2026-10-21",
+    location: "London, UK",
+    region: "Europe",
+    attendance: 2000,
+    category: "crossover",
+    tier: 1,
+    estimated: false,
+    audience: ["Institutional Investors", "Crypto Natives", "Hedge Funds", "Asset Managers"],
+    url: "https://blockworks.co",
+    notes: "Blockworks' European flagship. Bridges TradFi and crypto for European institutional market. Strong allocator and asset manager attendance.",
+    digitalAssetRelevance: "Yes"
+  },
+  {
     id: 24,
     name: "Hong Kong FinTech Week",
     startDate: "2026-11-02",
@@ -412,8 +428,8 @@ const events = [
   {
     id: 26,
     name: "Abu Dhabi Finance Week (ADFW)",
-    startDate: "2026-11-09",
-    endDate: "2026-11-13",
+    startDate: "2026-12-07",
+    endDate: "2026-12-11",
     location: "Abu Dhabi, UAE",
     region: "Middle East",
     attendance: 12000,
@@ -423,6 +439,22 @@ const events = [
     audience: ["Institutional Investors", "Sovereign Wealth", "Banks", "Asset Managers"],
     url: "https://adfw.ae",
     notes: "Middle East's premier financial event. Strong crypto and digital assets presence. ADGM Hub71 ecosystem. Critical for sovereign wealth access.",
+    digitalAssetRelevance: "Yes"
+  },
+  {
+    id: 37,
+    name: "Digital Asset Summit UAE (Blockworks)",
+    startDate: "2026-12-09",
+    endDate: "2026-12-10",
+    location: "Abu Dhabi, UAE",
+    region: "Middle East",
+    attendance: 1500,
+    category: "crossover",
+    tier: 1,
+    estimated: false,
+    audience: ["Institutional Investors", "Crypto Natives", "Sovereign Wealth", "Asset Managers"],
+    url: "https://blockworks.co",
+    notes: "Blockworks' Middle East expansion. Timed alongside ADFW to capture sovereign wealth and regional institutional interest. Focus on digital assets and tokenization.",
     digitalAssetRelevance: "Yes"
   },
   {
