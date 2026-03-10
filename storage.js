@@ -70,6 +70,13 @@ async function loadEventsFromGitHub() {
 }
 
 async function saveEventsToGitHub(eventsData) {
+    // Safeguard: never save empty events array
+    if (!eventsData || eventsData.length === 0) {
+        console.error('Attempted to save empty events array - blocked for safety');
+        alert('⚠️ Error: Cannot save empty events list. This is likely a bug.');
+        return false;
+    }
+
     // Check if token is configured
     if (!hasGitHubToken()) {
         const configured = promptForGitHubToken();
@@ -123,7 +130,7 @@ async function saveEventsToGitHub(eventsData) {
 async function initializeStorage() {
     const loadedEvents = await loadEventsFromGitHub();
     
-    // Only replace events if we successfully loaded from GitHub
+    // Only replace events if we successfully loaded from GitHub AND it has events
     if (loadedEvents && loadedEvents.length > 0) {
         console.log(`Loaded ${loadedEvents.length} events from GitHub`);
         events.length = 0;
@@ -132,6 +139,12 @@ async function initializeStorage() {
         // Re-render calendar with loaded data
         renderCalendar();
     } else {
+        // Safeguard: ensure we have events from events-data.js
+        if (events.length === 0) {
+            console.error('No events loaded! This should not happen.');
+            alert('⚠️ Error: No events loaded. Please refresh the page.');
+            return;
+        }
         console.log(`Using ${events.length} default events from events-data.js`);
         // Events already loaded from events-data.js, just render
         renderCalendar();
