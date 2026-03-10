@@ -463,12 +463,12 @@ function clearToken() {
     }
 }
 
-// Initial render with default data
-renderCalendar();
-
-// Initialize GitHub storage and reload events
+// Initialize GitHub storage and load events (will render when ready)
 if (typeof initializeStorage === 'function') {
     initializeStorage();
+} else {
+    // Fallback: render with default data if storage.js not loaded
+    renderCalendar();
 }
 
 document.getElementById('eventModal').addEventListener('click', function(e) {

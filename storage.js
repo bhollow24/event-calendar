@@ -35,6 +35,12 @@ function promptForGitHubToken() {
 }
 
 async function loadEventsFromGitHub() {
+    // Don't try to load if no token configured
+    if (!hasGitHubToken()) {
+        console.log('No GitHub token - using default events from events-data.js');
+        return null; // Signal to use default
+    }
+
     try {
         const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}`;
         const response = await fetch(url, {
@@ -50,16 +56,16 @@ async function loadEventsFromGitHub() {
             const content = atob(data.content);
             return JSON.parse(content);
         } else if (response.status === 404) {
-            // File doesn't exist yet, create it with current events
-            await saveEventsToGitHub(events);
-            return events;
+            // File doesn't exist yet, will be created on first save
+            console.log('events.json not found on GitHub - will be created on first save');
+            return null; // Use default from events-data.js
         } else {
             console.error('Failed to load events from GitHub:', response.status);
-            return events; // Fall back to default
+            return null; // Fall back to default
         }
     } catch (error) {
         console.error('Error loading events from GitHub:', error);
-        return events; // Fall back to default
+        return null; // Fall back to default
     }
 }
 
@@ -117,10 +123,17 @@ async function saveEventsToGitHub(eventsData) {
 async function initializeStorage() {
     const loadedEvents = await loadEventsFromGitHub();
     
-    // Replace the global events array
-    events.length = 0;
-    events.push(...loadedEvents);
-    
-    // Re-render calendar with loaded data
-    renderCalendar();
+    // Only replace events if we successfully loaded from GitHub
+    if (loadedEvents && loadedEvents.length > 0) {
+        console.log(`Loaded ${loadedEvents.length} events from GitHub`);
+        events.length = 0;
+        events.push(...loadedEvents);
+        
+        // Re-render calendar with loaded data
+        renderCalendar();
+    } else {
+        console.log(`Using ${events.length} default events from events-data.js`);
+        // Events already loaded from events-data.js, just render
+        renderCalendar();
+    }
 }
