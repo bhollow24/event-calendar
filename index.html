@@ -528,7 +528,10 @@
 </head>
 <body>
     <div class="header">
-        <h1>🗓️ Event Calendar 2026-2027</h1>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <h1>🗓️ Event Calendar 2026-2027</h1>
+            <button onclick="showSettings()" style="padding: 8px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 14px;">⚙️ Settings</button>
+        </div>
         <div class="controls">
             <div class="control-group">
                 <label>Year:</label>
@@ -693,6 +696,34 @@
                 <button class="visit-btn" onclick="visitEvent()">Visit Website</button>
                 <button class="edit-btn" onclick="editEvent()">Edit</button>
                 <button class="delete-btn" onclick="deleteEvent()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="event-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Settings</h2>
+                <button class="close-modal" onclick="closeSettings()">×</button>
+            </div>
+            <div class="modal-body">
+                <h3 style="margin-bottom: 12px;">GitHub Token</h3>
+                <p style="margin-bottom: 16px; color: var(--text-secondary); font-size: 14px;">
+                    Configure a GitHub Personal Access Token to enable permanent event saves.
+                    Without it, changes only persist until page refresh.
+                </p>
+                <div class="form-group">
+                    <label>Personal Access Token (with repo access)</label>
+                    <input type="password" id="settingsGithubToken" placeholder="ghp_..." style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-family: monospace;">
+                </div>
+                <p style="margin-top: 8px; font-size: 13px; color: var(--text-secondary);">
+                    Token status: <span id="tokenStatus" style="font-weight: 600;"></span>
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="edit-btn" onclick="saveSettings()">Save Token</button>
+                <button class="delete-btn" onclick="clearToken()">Clear Token</button>
+                <button class="visit-btn" onclick="closeSettings()">Close</button>
             </div>
         </div>
     </div>

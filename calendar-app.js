@@ -420,6 +420,49 @@ async function addManualEvent() {
     }
 }
 
+// Settings modal functions
+function showSettings() {
+    const modal = document.getElementById('settingsModal');
+    const tokenInput = document.getElementById('settingsGithubToken');
+    const statusSpan = document.getElementById('tokenStatus');
+    
+    const currentToken = localStorage.getItem('github_token');
+    if (currentToken) {
+        tokenInput.value = currentToken;
+        statusSpan.textContent = 'Configured ✓';
+        statusSpan.style.color = 'var(--accent-green)';
+    } else {
+        tokenInput.value = '';
+        statusSpan.textContent = 'Not configured';
+        statusSpan.style.color = 'var(--text-secondary)';
+    }
+    
+    modal.classList.add('active');
+}
+
+function closeSettings() {
+    document.getElementById('settingsModal').classList.remove('active');
+}
+
+function saveSettings() {
+    const token = document.getElementById('settingsGithubToken').value.trim();
+    if (token) {
+        localStorage.setItem('github_token', token);
+        alert('✓ GitHub token saved! Changes will now persist permanently.');
+        closeSettings();
+    } else {
+        alert('Please enter a valid GitHub token');
+    }
+}
+
+function clearToken() {
+    if (confirm('Clear GitHub token? Changes will no longer persist permanently.')) {
+        localStorage.removeItem('github_token');
+        alert('✓ Token cleared');
+        closeSettings();
+    }
+}
+
 // Initial render with default data
 renderCalendar();
 
@@ -431,5 +474,11 @@ if (typeof initializeStorage === 'function') {
 document.getElementById('eventModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeModal();
+    }
+});
+
+document.getElementById('settingsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeSettings();
     }
 });
