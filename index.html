@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Calendar - Crypto & Finance Events 2026-2027</title>
+    <title>Event Calendar - Crypto & Institutional Finance Events 2026-2027</title>
     <style>
         * {
             margin: 0;
@@ -20,6 +20,9 @@
             --accent-green-light: #d1fae5;
             --border: #e5e7eb;
             --hover: #f9fafb;
+            --tier1: #ef4444;
+            --tier2: #f59e0b;
+            --tier3: #3b82f6;
         }
 
         body {
@@ -141,7 +144,7 @@
 
         .day-cell {
             background: var(--bg-primary);
-            min-height: 100px;
+            min-height: 120px;
             padding: 8px;
             position: relative;
         }
@@ -149,6 +152,10 @@
         .day-cell.other-month {
             background: var(--bg-secondary);
             opacity: 0.5;
+        }
+
+        .day-cell.conflict {
+            background: rgba(239, 68, 68, 0.05);
         }
 
         .day-number {
@@ -167,6 +174,7 @@
             font-weight: 500;
             line-height: 1.3;
             border-left: 3px solid;
+            position: relative;
         }
 
         .event:hover {
@@ -193,20 +201,44 @@
             color: #059669;
         }
 
-        .event.finance {
+        .event.institutional {
             background: rgba(59, 130, 246, 0.1);
             border-color: #3b82f6;
             color: #2563eb;
         }
 
-        .event.both {
+        .event.crossover {
             background: rgba(168, 85, 247, 0.1);
             border-color: #a855f7;
             color: #7c3aed;
         }
 
-        .event.multi-day {
-            font-style: italic;
+        .event.estimated::after {
+            content: '~';
+            position: absolute;
+            right: 4px;
+            top: 2px;
+            font-weight: bold;
+        }
+
+        .tier-badge {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+
+        .tier-1 {
+            background: var(--tier1);
+        }
+
+        .tier-2 {
+            background: var(--tier2);
+        }
+
+        .tier-3 {
+            background: var(--tier3);
         }
 
         .add-event-section {
@@ -284,7 +316,8 @@
         }
 
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border);
@@ -294,7 +327,8 @@
         }
 
         .form-group input:focus,
-        .form-group select:focus {
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: var(--accent-green);
         }
@@ -352,7 +386,7 @@
             background: var(--bg-primary);
             padding: 30px;
             border-radius: 12px;
-            max-width: 600px;
+            max-width: 700px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
@@ -387,7 +421,7 @@
 
         .modal-body p {
             margin-bottom: 12px;
-            line-height: 1.6;
+            line-height: 1.8;
         }
 
         .modal-body strong {
@@ -426,38 +460,40 @@
             border: 1px solid var(--border);
         }
 
-        .spinner {
-            border: 3px solid var(--border);
-            border-top: 3px solid var(--accent-green);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .alert {
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            border: 1px solid;
-        }
-
-        .alert-success {
-            background: rgba(16, 185, 129, 0.1);
-            border-color: var(--accent-green);
-            color: #059669;
-        }
-
-        .alert-error {
+        .conflict-badge {
             background: rgba(239, 68, 68, 0.1);
-            border-color: #ef4444;
             color: #dc2626;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .legend {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .legend-items {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
         }
 
         @media (max-width: 768px) {
@@ -466,7 +502,7 @@
             }
 
             .day-cell {
-                min-height: 80px;
+                min-height: 100px;
                 padding: 4px;
             }
 
@@ -514,10 +550,35 @@
     </div>
 
     <div class="container">
-        <!-- Quarter views will be generated here -->
+        <div class="legend">
+            <div class="legend-title">Legend</div>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <span class="tier-badge tier-1"></span> Tier 1: Flagship/Must-Attend
+                </div>
+                <div class="legend-item">
+                    <span class="tier-badge tier-2"></span> Tier 2: Important
+                </div>
+                <div class="legend-item">
+                    <span class="tier-badge tier-3"></span> Tier 3: Regional/Niche
+                </div>
+                <div class="legend-item">
+                    <span style="color: var(--accent-green);">■</span> Digital Asset
+                </div>
+                <div class="legend-item">
+                    <span style="color: #3b82f6;">■</span> Institutional
+                </div>
+                <div class="legend-item">
+                    <span style="color: #a855f7;">■</span> Crossover
+                </div>
+                <div class="legend-item">
+                    <strong>~</strong> = Estimated dates
+                </div>
+            </div>
+        </div>
+
         <div id="calendar-container"></div>
 
-        <!-- Add Event Section -->
         <div class="add-event-section">
             <h3>➕ Add New Event</h3>
             <div class="url-input-group">
@@ -568,17 +629,42 @@
                         <input type="number" id="manualAttendance" placeholder="e.g., 10000">
                     </div>
                     <div class="form-group">
-                        <label>Type</label>
+                        <label>Category</label>
                         <select id="manualType">
-                            <option value="crypto">Crypto-Native</option>
-                            <option value="finance">Institutional Finance</option>
-                            <option value="both">Both</option>
+                            <option value="crypto">Digital Asset</option>
+                            <option value="institutional">Institutional</option>
+                            <option value="crossover">Crossover</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tier</label>
+                        <select id="manualTier">
+                            <option value="1">Tier 1 - Flagship/Must-Attend</option>
+                            <option value="2">Tier 2 - Important</option>
+                            <option value="3">Tier 3 - Regional/Niche</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estimated Dates?</label>
+                        <select id="manualEstimated">
+                            <option value="false">No - Confirmed</option>
+                            <option value="true">Yes - Estimated</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
+                    <label>Audience (comma-separated)</label>
+                    <input type="text" id="manualAudience" placeholder="e.g., Institutional Investors, Founders, Policy">
+                </div>
+                <div class="form-group">
                     <label>Event URL</label>
                     <input type="url" id="manualUrl" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="manualNotes" rows="3" placeholder="Key themes, who attends, why it matters..."></textarea>
                 </div>
                 <div class="form-actions">
                     <button class="submit" onclick="addManualEvent()">Add Event</button>
@@ -588,7 +674,6 @@
         </div>
     </div>
 
-    <!-- Event Detail Modal -->
     <div id="eventModal" class="event-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -604,642 +689,7 @@
         </div>
     </div>
 
-    <script>
-        // App State
-        let currentYear = 2026;
-        let currentQuarter = 'Q1';
-        let currentRegion = 'all';
-        let selectedEvent = null;
-
-        // Event Data Store
-        let events = [
-            // 2026 Events
-            {
-                id: 1,
-                name: "Digital Asset Summit NYC",
-                startDate: "2026-03-24",
-                endDate: "2026-03-26",
-                location: "New York, NY",
-                region: "North America",
-                attendance: 2500,
-                type: "crypto",
-                url: "https://blockworks.co/event/digital-asset-summit-nyc-2026"
-            },
-            {
-                id: 2,
-                name: "Consensus",
-                startDate: "2026-05-27",
-                endDate: "2026-05-29",
-                location: "Austin, TX",
-                region: "North America",
-                attendance: 15000,
-                type: "crypto",
-                url: "https://consensus.coindesk.com"
-            },
-            {
-                id: 3,
-                name: "Ethereum Community Conference (EthCC)",
-                startDate: "2026-07-08",
-                endDate: "2026-07-11",
-                location: "Paris, France",
-                region: "Europe",
-                attendance: 5000,
-                type: "crypto",
-                url: "https://ethcc.io"
-            },
-            {
-                id: 4,
-                name: "Solana Breakpoint",
-                startDate: "2026-09-21",
-                endDate: "2026-09-24",
-                location: "Singapore",
-                region: "Asia",
-                attendance: 8000,
-                type: "crypto",
-                url: "https://solana.com/breakpoint"
-            },
-            {
-                id: 5,
-                name: "Korea Blockchain Week",
-                startDate: "2026-09-06",
-                endDate: "2026-09-12",
-                location: "Seoul, South Korea",
-                region: "Asia",
-                attendance: 10000,
-                type: "crypto",
-                url: "https://koreablockchainweek.com"
-            },
-            {
-                id: 6,
-                name: "Abu Dhabi Finance Week",
-                startDate: "2026-11-09",
-                endDate: "2026-11-13",
-                location: "Abu Dhabi, UAE",
-                region: "Middle East",
-                attendance: 12000,
-                type: "finance",
-                url: "https://adfw.ae"
-            },
-            {
-                id: 7,
-                name: "Milken Institute Global Conference",
-                startDate: "2026-04-27",
-                endDate: "2026-05-01",
-                location: "Los Angeles, CA",
-                region: "North America",
-                attendance: 4000,
-                type: "finance",
-                url: "https://milkeninstitute.org/events"
-            },
-            {
-                id: 8,
-                name: "World Economic Forum (Davos)",
-                startDate: "2026-01-20",
-                endDate: "2026-01-24",
-                location: "Davos, Switzerland",
-                region: "Europe",
-                attendance: 3000,
-                type: "finance",
-                url: "https://www.weforum.org"
-            },
-            {
-                id: 9,
-                name: "SALT Conference",
-                startDate: "2026-05-11",
-                endDate: "2026-05-14",
-                location: "New York, NY",
-                region: "North America",
-                attendance: 2000,
-                type: "finance",
-                url: "https://www.saltconference.com"
-            },
-            {
-                id: 10,
-                name: "Bitcoin Miami",
-                startDate: "2026-05-18",
-                endDate: "2026-05-20",
-                location: "Miami, FL",
-                region: "North America",
-                attendance: 25000,
-                type: "crypto",
-                url: "https://b.tc/conference"
-            },
-            {
-                id: 11,
-                name: "Money20/20 USA",
-                startDate: "2026-10-25",
-                endDate: "2026-10-28",
-                location: "Las Vegas, NV",
-                region: "North America",
-                attendance: 12000,
-                type: "both",
-                url: "https://us.money2020.com"
-            },
-            {
-                id: 12,
-                name: "Money20/20 Europe",
-                startDate: "2026-06-02",
-                endDate: "2026-06-04",
-                location: "Amsterdam, Netherlands",
-                region: "Europe",
-                attendance: 7000,
-                type: "both",
-                url: "https://europe.money2020.com"
-            },
-            {
-                id: 13,
-                name: "Token2049 Singapore",
-                startDate: "2026-09-28",
-                endDate: "2026-09-29",
-                location: "Singapore",
-                region: "Asia",
-                attendance: 10000,
-                type: "crypto",
-                url: "https://token2049.com"
-            },
-            {
-                id: 14,
-                name: "Web Summit",
-                startDate: "2026-11-02",
-                endDate: "2026-11-05",
-                location: "Lisbon, Portugal",
-                region: "Europe",
-                attendance: 70000,
-                type: "both",
-                url: "https://websummit.com"
-            },
-            {
-                id: 15,
-                name: "Paris Blockchain Week",
-                startDate: "2026-04-08",
-                endDate: "2026-04-10",
-                location: "Paris, France",
-                region: "Europe",
-                attendance: 7000,
-                type: "crypto",
-                url: "https://parisblockchainweek.com"
-            },
-            {
-                id: 16,
-                name: "DC Blockchain Summit",
-                startDate: "2026-03-04",
-                endDate: "2026-03-05",
-                location: "Washington, DC",
-                region: "North America",
-                attendance: 2000,
-                type: "both",
-                url: "https://dcblockchainsummit.com"
-            },
-            {
-                id: 17,
-                name: "Hong Kong FinTech Week",
-                startDate: "2026-10-26",
-                endDate: "2026-10-30",
-                location: "Hong Kong",
-                region: "Asia",
-                attendance: 30000,
-                type: "both",
-                url: "https://fintechweek.hk"
-            },
-            {
-                id: 18,
-                name: "Digital Asset Summit London",
-                startDate: "2026-05-12",
-                endDate: "2026-05-14",
-                location: "London, UK",
-                region: "Europe",
-                attendance: 2000,
-                type: "crypto",
-                url: "https://blockworks.co"
-            },
-            {
-                id: 19,
-                name: "Sifted Summit",
-                startDate: "2026-06-10",
-                endDate: "2026-06-11",
-                location: "London, UK",
-                region: "Europe",
-                attendance: 1500,
-                type: "finance",
-                url: "https://sifted.eu/summit"
-            },
-            {
-                id: 20,
-                name: "Permissionless",
-                startDate: "2026-10-06",
-                endDate: "2026-10-08",
-                location: "Salt Lake City, UT",
-                region: "North America",
-                attendance: 5000,
-                type: "crypto",
-                url: "https://blockworks.co/event/permissionless"
-            },
-            
-            // 2027 Events
-            {
-                id: 21,
-                name: "Digital Asset Summit NYC",
-                startDate: "2027-03-23",
-                endDate: "2027-03-25",
-                location: "New York, NY",
-                region: "North America",
-                attendance: 3000,
-                type: "crypto",
-                url: "https://blockworks.co"
-            },
-            {
-                id: 22,
-                name: "Consensus",
-                startDate: "2027-06-09",
-                endDate: "2027-06-11",
-                location: "Toronto, Canada",
-                region: "North America",
-                attendance: 16000,
-                type: "crypto",
-                url: "https://consensus.coindesk.com"
-            },
-            {
-                id: 23,
-                name: "Bitcoin Miami",
-                startDate: "2027-05-24",
-                endDate: "2027-05-26",
-                location: "Miami, FL",
-                region: "North America",
-                attendance: 30000,
-                type: "crypto",
-                url: "https://b.tc/conference"
-            },
-            {
-                id: 24,
-                name: "World Economic Forum (Davos)",
-                startDate: "2027-01-19",
-                endDate: "2027-01-23",
-                location: "Davos, Switzerland",
-                region: "Europe",
-                attendance: 3000,
-                type: "finance",
-                url: "https://www.weforum.org"
-            },
-            {
-                id: 25,
-                name: "Token2049 Dubai",
-                startDate: "2027-04-18",
-                endDate: "2027-04-19",
-                location: "Dubai, UAE",
-                region: "Middle East",
-                attendance: 12000,
-                type: "crypto",
-                url: "https://token2049.com"
-            }
-        ];
-
-        // Helper Functions
-        function getQuarterMonths(quarter) {
-            const quarters = {
-                'Q1': [0, 1, 2],  // Jan, Feb, Mar
-                'Q2': [3, 4, 5],  // Apr, May, Jun
-                'Q3': [6, 7, 8],  // Jul, Aug, Sep
-                'Q4': [9, 10, 11] // Oct, Nov, Dec
-            };
-            return quarters[quarter];
-        }
-
-        function getSizeClass(attendance) {
-            if (attendance < 5000) return 'small';
-            if (attendance <= 15000) return 'medium';
-            return 'large';
-        }
-
-        function getDaysInMonth(year, month) {
-            return new Date(year, month + 1, 0).getDate();
-        }
-
-        function getFirstDayOfMonth(year, month) {
-            return new Date(year, month, 1).getDay();
-        }
-
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        }
-
-        function isDateInRange(date, startDate, endDate) {
-            const d = new Date(date);
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            return d >= start && d <= end;
-        }
-
-        // UI Functions
-        function switchYear(year) {
-            currentYear = year;
-            document.querySelectorAll('.controls .control-group:first-child .btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            renderCalendar();
-        }
-
-        function switchQuarter(quarter) {
-            currentQuarter = quarter;
-            document.querySelectorAll('.controls .control-group:nth-child(2) .btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            renderCalendar();
-        }
-
-        function filterRegion(region) {
-            currentRegion = region;
-            document.querySelectorAll('.controls .control-group:nth-child(3) .btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            renderCalendar();
-        }
-
-        function renderCalendar() {
-            const container = document.getElementById('calendar-container');
-            container.innerHTML = '';
-
-            const months = getQuarterMonths(currentQuarter);
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                              'July', 'August', 'September', 'October', 'November', 'December'];
-
-            months.forEach(monthIndex => {
-                const monthSection = document.createElement('div');
-                monthSection.className = 'month-section';
-
-                const header = document.createElement('div');
-                header.className = 'month-header';
-                header.textContent = `${monthNames[monthIndex]} ${currentYear}`;
-                monthSection.appendChild(header);
-
-                const grid = document.createElement('div');
-                grid.className = 'calendar-grid';
-
-                // Day headers
-                ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
-                    const dayHeader = document.createElement('div');
-                    dayHeader.className = 'day-header';
-                    dayHeader.textContent = day;
-                    grid.appendChild(dayHeader);
-                });
-
-                // Calculate calendar days
-                const daysInMonth = getDaysInMonth(currentYear, monthIndex);
-                const firstDay = getFirstDayOfMonth(currentYear, monthIndex);
-
-                // Previous month padding
-                for (let i = 0; i < firstDay; i++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'day-cell other-month';
-                    grid.appendChild(cell);
-                }
-
-                // Current month days
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'day-cell';
-
-                    const dayNumber = document.createElement('div');
-                    dayNumber.className = 'day-number';
-                    dayNumber.textContent = day;
-                    cell.appendChild(dayNumber);
-
-                    // Add events for this day
-                    const dateStr = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                    
-                    events.forEach(event => {
-                        if (currentRegion !== 'all' && event.region !== currentRegion) return;
-                        
-                        if (isDateInRange(dateStr, event.startDate, event.endDate)) {
-                            const eventEl = document.createElement('div');
-                            eventEl.className = `event ${getSizeClass(event.attendance)} ${event.type}`;
-                            
-                            const start = new Date(event.startDate);
-                            const end = new Date(event.endDate);
-                            const isMultiDay = start.getTime() !== end.getTime();
-                            
-                            if (isMultiDay) {
-                                eventEl.classList.add('multi-day');
-                            }
-                            
-                            eventEl.textContent = event.name;
-                            eventEl.onclick = () => showEventDetails(event);
-                            cell.appendChild(eventEl);
-                        }
-                    });
-
-                    grid.appendChild(cell);
-                }
-
-                monthSection.appendChild(grid);
-                container.appendChild(monthSection);
-            });
-        }
-
-        function showEventDetails(event) {
-            selectedEvent = event;
-            const modal = document.getElementById('eventModal');
-            const title = document.getElementById('modalTitle');
-            const body = document.getElementById('modalBody');
-
-            title.textContent = event.name;
-            
-            const start = formatDate(event.startDate);
-            const end = formatDate(event.endDate);
-            const dateRange = start === end ? start : `${start} - ${end}`;
-
-            body.innerHTML = `
-                <p><strong>📅 Date:</strong> ${dateRange}</p>
-                <p><strong>📍 Location:</strong> ${event.location}</p>
-                <p><strong>🌍 Region:</strong> ${event.region}</p>
-                <p><strong>👥 Expected Attendance:</strong> ${event.attendance.toLocaleString()}</p>
-                <p><strong>🏷️ Type:</strong> ${event.type.charAt(0).toUpperCase() + event.type.slice(1)}</p>
-                <p><strong>🔗 Website:</strong> <a href="${event.url}" target="_blank" style="color: var(--accent-green);">${event.url}</a></p>
-            `;
-
-            modal.classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('eventModal').classList.remove('active');
-            selectedEvent = null;
-        }
-
-        function visitEvent() {
-            if (selectedEvent && selectedEvent.url) {
-                window.open(selectedEvent.url, '_blank');
-            }
-        }
-
-        function editEvent() {
-            if (!selectedEvent) return;
-            
-            closeModal();
-            
-            // Pre-fill manual form with event data
-            document.getElementById('manualName').value = selectedEvent.name;
-            document.getElementById('manualStartDate').value = selectedEvent.startDate;
-            document.getElementById('manualEndDate').value = selectedEvent.endDate;
-            document.getElementById('manualLocation').value = selectedEvent.location;
-            document.getElementById('manualRegion').value = selectedEvent.region;
-            document.getElementById('manualAttendance').value = selectedEvent.attendance;
-            document.getElementById('manualType').value = selectedEvent.type;
-            document.getElementById('manualUrl').value = selectedEvent.url;
-            
-            showManualForm();
-            
-            // Change submit button to "Update"
-            const submitBtn = document.querySelector('.manual-form .submit');
-            submitBtn.textContent = 'Update Event';
-            submitBtn.onclick = () => updateEvent();
-        }
-
-        function updateEvent() {
-            const index = events.findIndex(e => e.id === selectedEvent.id);
-            if (index === -1) return;
-            
-            events[index] = {
-                ...selectedEvent,
-                name: document.getElementById('manualName').value,
-                startDate: document.getElementById('manualStartDate').value,
-                endDate: document.getElementById('manualEndDate').value,
-                location: document.getElementById('manualLocation').value,
-                region: document.getElementById('manualRegion').value,
-                attendance: parseInt(document.getElementById('manualAttendance').value),
-                type: document.getElementById('manualType').value,
-                url: document.getElementById('manualUrl').value
-            };
-            
-            hideManualForm();
-            renderCalendar();
-            alert('✓ Event updated successfully!');
-            
-            // Reset submit button
-            const submitBtn = document.querySelector('.manual-form .submit');
-            submitBtn.textContent = 'Add Event';
-            submitBtn.onclick = () => addManualEvent();
-        }
-
-        function deleteEvent() {
-            if (!selectedEvent) return;
-            
-            if (confirm(`Are you sure you want to delete "${selectedEvent.name}"?`)) {
-                events = events.filter(e => e.id !== selectedEvent.id);
-                closeModal();
-                renderCalendar();
-                alert('✓ Event deleted successfully!');
-            }
-        }
-
-        function showManualForm() {
-            document.getElementById('manualForm').classList.add('active');
-        }
-
-        function hideManualForm() {
-            document.getElementById('manualForm').classList.remove('active');
-            // Clear form
-            document.getElementById('manualName').value = '';
-            document.getElementById('manualStartDate').value = '';
-            document.getElementById('manualEndDate').value = '';
-            document.getElementById('manualLocation').value = '';
-            document.getElementById('manualAttendance').value = '';
-            document.getElementById('manualUrl').value = '';
-        }
-
-        async function scrapeEvent() {
-            const url = document.getElementById('eventUrl').value;
-            if (!url) {
-                alert('Please enter an event URL');
-                return;
-            }
-
-            // Show loading state
-            const btn = event.target;
-            btn.disabled = true;
-            btn.textContent = 'Scraping...';
-
-            try {
-                // Try to fetch and parse the page
-                // In a real implementation, you'd use a backend or proxy to avoid CORS
-                // For now, show manual form as fallback
-                
-                setTimeout(() => {
-                    alert('Auto-scrape not available in demo mode. Please use manual entry.');
-                    showManualForm();
-                    document.getElementById('manualUrl').value = url;
-                    btn.disabled = false;
-                    btn.textContent = 'Add Event';
-                }, 1000);
-
-            } catch (error) {
-                alert('Could not scrape URL. Please use manual entry.');
-                showManualForm();
-                document.getElementById('manualUrl').value = url;
-                btn.disabled = false;
-                btn.textContent = 'Add Event';
-            }
-        }
-
-        function addManualEvent() {
-            const name = document.getElementById('manualName').value;
-            const startDate = document.getElementById('manualStartDate').value;
-            const endDate = document.getElementById('manualEndDate').value;
-            const location = document.getElementById('manualLocation').value;
-            const region = document.getElementById('manualRegion').value;
-            const attendance = parseInt(document.getElementById('manualAttendance').value);
-            const type = document.getElementById('manualType').value;
-            const url = document.getElementById('manualUrl').value;
-
-            if (!name || !startDate || !endDate || !location || !attendance || !url) {
-                alert('Please fill in all required fields');
-                return;
-            }
-
-            // Check for duplicates
-            const duplicate = events.find(e => 
-                e.name.toLowerCase() === name.toLowerCase() && 
-                e.startDate === startDate
-            );
-
-            if (duplicate) {
-                if (!confirm('An event with this name and date already exists. Add anyway?')) {
-                    return;
-                }
-            }
-
-            const newEvent = {
-                id: Math.max(...events.map(e => e.id)) + 1,
-                name,
-                startDate,
-                endDate,
-                location,
-                region,
-                attendance,
-                type,
-                url
-            };
-
-            events.push(newEvent);
-            hideManualForm();
-            renderCalendar();
-            
-            document.getElementById('eventUrl').value = '';
-            
-            alert('✓ Event added successfully!');
-        }
-
-        // Initialize
-        renderCalendar();
-
-        // Close modal on outside click
-        document.getElementById('eventModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
-    </script>
+    <script src="events-data.js"></script>
+    <script src="calendar-app.js"></script>
 </body>
 </html>
