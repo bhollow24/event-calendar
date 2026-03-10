@@ -138,6 +138,10 @@ function renderCalendar() {
                         eventEl.classList.add('estimated');
                     }
                     
+                    if (event.tier === 1) {
+                        eventEl.classList.add('tier-1-event');
+                    }
+                    
                     const tierBadge = document.createElement('span');
                     tierBadge.className = `tier-badge tier-${event.tier}`;
                     
@@ -171,8 +175,7 @@ function showEventDetails(event) {
 
     const tierLabels = {
         1: 'Tier 1: Flagship/Must-Attend',
-        2: 'Tier 2: Important',
-        3: 'Tier 3: Regional/Niche'
+        2: 'Tier 2: Regional/Niche'
     };
 
     const categoryLabels = {

@@ -20,9 +20,8 @@
             --accent-green-light: #d1fae5;
             --border: #e5e7eb;
             --hover: #f9fafb;
-            --tier1: #ef4444;
-            --tier2: #f59e0b;
-            --tier3: #3b82f6;
+            --tier1: #10b981;
+            --tier2: #fbbf24;
         }
 
         body {
@@ -223,22 +222,27 @@
 
         .tier-badge {
             display: inline-block;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
             margin-right: 4px;
         }
 
         .tier-1 {
-            background: var(--tier1);
+            color: var(--tier1);
+            font-size: 12px;
+        }
+
+        .tier-1::before {
+            content: '⭐';
         }
 
         .tier-2 {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
             background: var(--tier2);
         }
 
-        .tier-3 {
-            background: var(--tier3);
+        .event.tier-1-event {
+            font-weight: 700 !important;
         }
 
         .add-event-section {
@@ -554,13 +558,10 @@
             <div class="legend-title">Legend</div>
             <div class="legend-items">
                 <div class="legend-item">
-                    <span class="tier-badge tier-1"></span> Tier 1: Flagship/Must-Attend
+                    <span class="tier-badge tier-1"></span> <strong>Tier 1: Flagship/Must-Attend</strong>
                 </div>
                 <div class="legend-item">
-                    <span class="tier-badge tier-2"></span> Tier 2: Important
-                </div>
-                <div class="legend-item">
-                    <span class="tier-badge tier-3"></span> Tier 3: Regional/Niche
+                    <span class="tier-badge tier-2"></span> Tier 2: Regional/Niche
                 </div>
                 <div class="legend-item">
                     <span style="color: var(--accent-green);">■</span> Digital Asset
@@ -642,8 +643,7 @@
                         <label>Tier</label>
                         <select id="manualTier">
                             <option value="1">Tier 1 - Flagship/Must-Attend</option>
-                            <option value="2">Tier 2 - Important</option>
-                            <option value="3">Tier 3 - Regional/Niche</option>
+                            <option value="2">Tier 2 - Regional/Niche</option>
                         </select>
                     </div>
                     <div class="form-group">
