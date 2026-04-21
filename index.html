@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crypto + Institutional Finance Calendar</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div class="hero__copy">
+          <p class="eyebrow">Institutional digital asset tracker</p>
+          <h1>Crypto and macro events, laid out like a real market calendar.</h1>
+          <p class="hero__lede">
+            Follow 2026 and 2027 policy meetings, banking conferences, and digital asset summits in a conference-grade monthly view.
+          </p>
+          <div class="hero__stats">
+            <div class="hero-stat">
+              <span class="hero-stat__value">24</span>
+              <span class="hero-stat__label">Months live</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat__value">5</span>
+              <span class="hero-stat__label">Event tracks</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat__value">Shared</span>
+              <span class="hero-stat__label">Team-ready sync</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero__actions">
+          <button id="sync-button" class="button" type="button">Sync now</button>
+          <button id="add-event-button" class="button button--primary" type="button">Add event</button>
+          <button id="export-button" class="button" type="button">Export JSON</button>
+          <button id="import-button" class="button" type="button">Import JSON</button>
+          <button id="reset-button" class="button button--ghost" type="button">Reset local edits</button>
+          <input id="import-file-input" type="file" accept="application/json" hidden />
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="calendar-panel">
+          <div id="sync-status" class="sync-status" aria-live="polite"></div>
+
+          <div class="toolbar">
+            <div class="toolbar__nav">
+              <button id="previous-month-button" class="icon-button" type="button" aria-label="Previous month">
+                &#x2039;
+              </button>
+              <div>
+                <h2 id="current-month-label">Month</h2>
+                <p id="current-month-summary" class="toolbar__summary"></p>
+              </div>
+              <button id="next-month-button" class="icon-button" type="button" aria-label="Next month">
+                &#x203a;
+              </button>
+            </div>
+
+            <div class="toolbar__controls">
+              <div id="month-ribbon" class="month-ribbon" aria-label="Month navigation"></div>
+              <label class="field">
+                <span>Search</span>
+                <input id="search-input" type="search" placeholder="Fed, Bitcoin, IMF..." />
+              </label>
+            </div>
+          </div>
+
+          <div class="calendar-scroll">
+            <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <aside class="sidebar">
+          <section class="panel">
+            <div class="panel__header">
+              <h3>Categories</h3>
+              <p>Toggle what shows in the month view.</p>
+            </div>
+            <div id="category-filters" class="filter-stack"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel__header">
+              <h3>Month events</h3>
+              <p id="month-events-count"></p>
+            </div>
+            <div id="month-events-list" class="event-list"></div>
+          </section>
+
+          <section class="panel panel--compact">
+            <div class="panel__header">
+              <h3>Editing notes</h3>
+            </div>
+            <ul class="plain-list">
+              <li>Click any event card to edit it.</li>
+              <li>Changes stay in your browser until you reset or export.</li>
+              <li>Use Export JSON to share revised dates with your team.</li>
+            </ul>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <dialog id="event-dialog" class="event-dialog">
+      <form id="event-form" class="event-form" method="dialog">
+        <div class="event-form__header">
+          <div>
+            <p class="eyebrow">Event editor</p>
+            <h3 id="dialog-title">Add event</h3>
+          </div>
+          <button id="close-dialog-button" class="icon-button" type="button" aria-label="Close editor">
+            &#x2715;
+          </button>
+        </div>
+
+        <div class="event-form__grid">
+          <label class="field">
+            <span>Title</span>
+            <input name="title" type="text" required maxlength="120" />
+          </label>
+
+          <label class="field">
+            <span>Category</span>
+            <select name="category" required></select>
+          </label>
+
+          <label class="field">
+            <span>Status</span>
+            <select name="status" required>
+              <option value="confirmed">Confirmed</option>
+              <option value="estimated">Estimated</option>
+              <option value="watchlist">Watchlist</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Location</span>
+            <input name="location" type="text" maxlength="120" />
+          </label>
+
+          <label class="field">
+            <span>Start date</span>
+            <input name="start" type="date" required />
+          </label>
+
+          <label class="field">
+            <span>End date</span>
+            <input name="end" type="date" required />
+          </label>
+
+          <label class="field field--full">
+            <span>Source URL</span>
+            <input name="sourceUrl" type="url" placeholder="https://..." />
+          </label>
+
+          <label class="field field--full">
+            <span>Notes</span>
+            <textarea name="notes" rows="4" maxlength="400"></textarea>
+          </label>
+        </div>
+
+        <div class="event-form__actions">
+          <button id="delete-event-button" class="button button--danger" type="button">Delete</button>
+          <div class="event-form__actions-right">
+            <button class="button button--ghost" type="button" id="cancel-button">Cancel</button>
+            <button class="button button--primary" type="submit">Save event</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
