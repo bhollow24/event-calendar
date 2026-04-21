@@ -5,12 +5,14 @@ Small static app for tracking major crypto, central bank, macro, and banking eve
 ## What it does
 
 - Month-by-month calendar view
+- Quarter planning view
 - Category filters
 - Search across titles, notes, and locations
 - Built-in event editor for adjusting dates
 - Optional shared Supabase backend for team-wide live edits
 - Import and export JSON for sharing revisions
 - Seed data that mixes confirmed dates with clearly labeled estimated placeholders
+- Canonical repo-backed `events.json` for durable event data
 
 ## Run it locally
 
@@ -32,6 +34,16 @@ There are two easy ways to update dates:
 
 1. Use the in-app editor and then export the JSON.
 2. Edit [`data/events.js`](/Users/bennettholloway/Documents/New project/data/events.js) directly if you want source-controlled changes.
+3. Use [`events.json`](/Users/bennettholloway/Documents/New project/events.json) as the repo-backed canonical data file for deployed/shared versions.
+
+## Permanent event updates
+
+The app now treats [`events.json`](/Users/bennettholloway/Documents/New project/events.json) as the canonical event dataset when it is available.
+
+- All views render from the same canonical event list.
+- Browser edits still cache locally right away.
+- If you configure a GitHub token in browser local storage under `github_token`, edits can be written back to `events.json` in the GitHub repo.
+- If Supabase is configured, Supabase remains the higher-priority shared backend.
 
 ## Enable shared team editing with Supabase
 

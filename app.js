@@ -5,6 +5,14 @@ const STORAGE_KEY = "crypto-finance-calendar-events-v1";
 const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MIN_MONTH = new Date("2026-01-01");
 const MAX_MONTH = new Date("2027-12-01");
+const GITHUB_EVENTS_CONFIG = {
+  owner: "bhollow24",
+  repo: "event-calendar",
+  branch: "main",
+  filePath: "events.json"
+};
+
+let githubEventsSha = null;
 
 const monthLabel = document.querySelector("#current-month-label");
 const monthSummary = document.querySelector("#current-month-summary");
@@ -97,6 +105,8 @@ importFileInput.addEventListener("change", async (event) => {
     render();
     if (state.backend.isConfigured) {
       await pushAllEventsToRemote();
+    } else {
+      await saveEventsToGitHub(state.events);
     }
   } catch (error) {
     window.alert(error.message);
@@ -112,6 +122,9 @@ resetButton.addEventListener("click", () => {
   state.events = seedEvents.map(normalizeEvent);
   persistEvents();
   render();
+  if (!state.backend.isConfigured) {
+    saveEventsToGitHub(state.events);
+  }
 });
 
 eventForm.addEventListener("submit", (event) => {
@@ -495,6 +508,20 @@ function persistEvents() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.events, null, 2));
 }
 
+function getGitHubToken() {
+  return localStorage.getItem("github_token")?.trim() || "";
+}
+
+function promptForGitHubToken() {
+  const token = window.prompt(
+    "To save calendar changes permanently to GitHub, paste a GitHub Personal Access Token with repo access."
+  );
+
+  if (!token?.trim()) return false;
+  localStorage.setItem("github_token", token.trim());
+  return true;
+}
+
 function mergeSeedEvents(events) {
   const seedById = new Map(canonicalizeEvents(seedEvents).map((event) => [event.id, event]));
   const normalizedExisting = canonicalizeEvents(events).map((event) => {
@@ -525,11 +552,7 @@ function canonicalizeEvents(events) {
 
 async function bootstrap() {
   if (!state.backend.isConfigured) {
-    state.syncState = {
-      tone: "warn",
-      message: "Local-only mode. Add your Supabase project URL and anon key in config.js to share edits with colleagues."
-    };
-    render();
+    await loadRepositoryEvents();
     return;
   }
 
@@ -537,9 +560,37 @@ async function bootstrap() {
   await synchronizeFromRemote(false);
 }
 
+async function loadRepositoryEvents() {
+  try {
+    const response = await fetch(`./events.json?ts=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const events = await response.json();
+    if (!Array.isArray(events) || events.length === 0) {
+      throw new Error("Repository events file is empty.");
+    }
+
+    state.events = canonicalizeEvents(events);
+    persistEvents();
+    setSyncState("ok", "Loaded canonical event data from the repository.");
+    render();
+  } catch (error) {
+    setSyncState(
+      "warn",
+      "Using local event cache. Repository-backed persistence is available once the app is served with events.json."
+    );
+    render();
+  }
+}
+
 async function synchronizeFromRemote(showSuccessAlert) {
   if (!state.backend.isConfigured) {
-    render();
+    await loadRepositoryEvents();
+    if (showSuccessAlert) {
+      window.alert("Reloaded the repository-backed event data.");
+    }
     return;
   }
 
@@ -574,7 +625,10 @@ async function pushAllEventsToRemote() {
 }
 
 async function saveEventToRemote(event) {
-  if (!state.backend.isConfigured) return;
+  if (!state.backend.isConfigured) {
+    await saveEventsToGitHub(state.events, `Saved "${event.title}" to GitHub.`);
+    return;
+  }
 
   setSyncState("warn", `Saving "${event.title}" to Supabase...`);
   render();
@@ -590,7 +644,13 @@ async function saveEventToRemote(event) {
 }
 
 async function deleteEventFromRemote(id) {
-  if (!state.backend.isConfigured) return;
+  if (!state.backend.isConfigured) {
+    await saveEventsToGitHub(
+      state.events,
+      "Deleted the event and saved the updated calendar to GitHub."
+    );
+    return;
+  }
 
   setSyncState("warn", "Deleting event from Supabase...");
   render();
@@ -602,6 +662,71 @@ async function deleteEventFromRemote(id) {
   } catch (error) {
     setSyncState("error", `Could not delete the event from Supabase: ${error.message}`);
     render();
+  }
+}
+
+async function saveEventsToGitHub(events, successMessage = "Saved the calendar to GitHub.") {
+  const token = getGitHubToken() || (promptForGitHubToken() ? getGitHubToken() : "");
+  if (!token) {
+    setSyncState(
+      "warn",
+      "GitHub token not configured. Changes are still cached locally in this browser."
+    );
+    render();
+    return false;
+  }
+
+  setSyncState("warn", "Saving canonical events.json to GitHub...");
+  render();
+
+  try {
+    const apiUrl = `https://api.github.com/repos/${GITHUB_EVENTS_CONFIG.owner}/${GITHUB_EVENTS_CONFIG.repo}/contents/${GITHUB_EVENTS_CONFIG.filePath}`;
+
+    if (!githubEventsSha) {
+      const currentResponse = await fetch(apiUrl, {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github+json"
+        }
+      });
+
+      if (currentResponse.ok) {
+        const currentFile = await currentResponse.json();
+        githubEventsSha = currentFile.sha;
+      }
+    }
+
+    const payload = {
+      message: `Update calendar events - ${new Date().toISOString()}`,
+      content: btoa(JSON.stringify(canonicalizeEvents(events), null, 2)),
+      branch: GITHUB_EVENTS_CONFIG.branch,
+      sha: githubEventsSha || undefined
+    };
+
+    const response = await fetch(apiUrl, {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || `HTTP ${response.status}`);
+    }
+
+    const result = await response.json();
+    githubEventsSha = result.content?.sha || githubEventsSha;
+    setSyncState("ok", successMessage);
+    render();
+    return true;
+  } catch (error) {
+    setSyncState("error", `GitHub save failed: ${error.message}`);
+    render();
+    return false;
   }
 }
 
